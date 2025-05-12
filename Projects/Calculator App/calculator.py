@@ -35,20 +35,27 @@ class Calculator(ctk.CTk):
         self.zero_div = False
 
         # widgets
-        self.create_widgets()
+        self.create_widgets(is_dark)
 
         # events
         self.result_label.bind('<Configure>', self.change_font_size)
+        self.mode_label.bind('<Button>', self.change_mode)
 
         # run 
         self.mainloop()
 
-    def create_widgets(self):
+    def create_widgets(self, is_dark):
         '''Create all buttons and labels (Widgets)'''
         
         # fonts
         main_font = ctk.CTkFont(FONT, NORMAL_FONT_SIZE)
         result_font = ctk.CTkFont(FONT, OUTPUT_FONT_SIZE)
+        mode_font = ctk.CTkFont(FONT, 18, weight = 'bold')
+
+        # mode label
+        self.mode = ctk.StringVar(value = 'dark' if is_dark else 'light')
+        self.mode_label = ctk.CTkLabel(self, textvariable = self.mode, font = mode_font, text_color = ('#9e9e99', '#cbccc6'))
+        self.mode_label.place(relx = 0.02, rely = 0.02)
 
         # output labels
         self.formula_label = OutputLabel(self, 0, 'se', main_font, self.formula_string) # fomula
@@ -229,6 +236,14 @@ class Calculator(ctk.CTk):
             
             self.result_string.set(''.join(self.display_nums))
 
+    def change_mode(self, event):
+        if self.mode.get() == 'dark':
+             ctk.set_appearance_mode('light')
+             self.mode.set('light')
+        else:
+            ctk.set_appearance_mode('dark')
+            self.mode.set('dark')
+
     def title_bar_color(self, is_dark):
         '''Change the Title Bar Color.
         Works for Windows 11 only'''
@@ -240,7 +255,7 @@ class Calculator(ctk.CTk):
             windll.dwmapi.DwmSetWindowAttribute(HWND, DWMWA_ATTRIBUTE, byref(c_int(COLOR)), sizeof(c_int))
         except:
             pass
-
+        
 class OutputLabel(ctk.CTkLabel):
     def __init__(self, parent, row, anchor, font, string_var):
         super().__init__(master = parent, font = font, textvariable = string_var)
